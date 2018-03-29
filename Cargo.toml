@@ -1,0 +1,6 @@
+[package]
+name = "bit_board"
+version = "0.1.0"
+authors = ["Antti Valli <Antti.Valli@gmail.com>"]
+
+[dependencies]
