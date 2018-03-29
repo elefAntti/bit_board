@@ -26,6 +26,12 @@ impl Coord
     }
 }
 
+impl fmt::Display for Coord {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.get_row(), self.get_col())
+    }
+}
+
 struct BitBoard(u64);
 
 impl BitBoard
@@ -126,8 +132,7 @@ fn main() {
     println!("Test pattern: {}", test_board);
     println!("Shift right: {}", test_board.shift_right());
     println!("Shift up: {}", test_board.shift_up());
-    let test_coord = test_board.shift_up().first_one();
-    println!("first one at: ({}, {})",test_coord.get_row(), test_coord.get_col());
+    println!("first one at: {}",test_board.shift_up().first_one());
     println!("Shift left: {}", test_board.shift_left());
     println!("Shift down: {}", test_board.shift_down());
 
