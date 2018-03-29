@@ -81,7 +81,7 @@ impl BitBoard
     
     fn first_one(&self) -> Coord
     {
-        Coord( self.0.leading_zeros() )
+        Coord( self.0.trailing_zeros() )
     }
 
     fn print( &self ) -> ()
