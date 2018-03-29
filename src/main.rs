@@ -1,3 +1,5 @@
+use std::fmt;
+
 struct Coord(u32);
 
 impl Coord
@@ -83,19 +85,28 @@ impl BitBoard
     {
         Coord( self.0.trailing_zeros() )
     }
+}
 
-    fn print( &self ) -> ()
-    {
-        let mut board_as_characters: String = String::from("");
+impl fmt::Display for BitBoard
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in 0..8
         {
+            write!(f, "\n")?;
             for col in 0..8
             {
-                board_as_characters += if self.get_value_at(Coord::new(row, col)) {"1"} else {"0"};
+
+                if self.get_value_at(Coord::new(row, col))
+                {
+                    write!(f, "1")?;
+                }
+                else 
+                {
+                    write!(f, "0")?;
+                }
             }
-            board_as_characters += "\n";
         }
-        println!("{}", board_as_characters);
+        write!(f,"")
     }
 }
 
@@ -112,17 +123,13 @@ fn test_pattern( ) -> BitBoard
 
 fn main() {
     let test_board = test_pattern();
-    test_board.print();
-    println!("Shift right:");
-    test_board.shift_right().print();
-    println!("Shift up:");
-    test_board.shift_up().print();
+    println!("Test pattern: {}", test_board);
+    println!("Shift right: {}", test_board.shift_right());
+    println!("Shift up: {}", test_board.shift_up());
     let test_coord = test_board.shift_up().first_one();
     println!("first one at: ({}, {})",test_coord.get_row(), test_coord.get_col());
-    println!("Shift left:");
-    test_board.shift_left().print();
-    println!("Shift down:");
-    test_board.shift_down().print();
+    println!("Shift left: {}", test_board.shift_left());
+    println!("Shift down: {}", test_board.shift_down());
 
 
 }
