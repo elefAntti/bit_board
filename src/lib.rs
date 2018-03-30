@@ -1,6 +1,7 @@
 
 use std::fmt;
 
+#[derive(Clone,Copy)]
 pub struct Coord(u32);
 
 impl Coord
@@ -33,6 +34,7 @@ impl fmt::Display for Coord {
     }
 }
 
+#[derive(Debug)]
 pub struct BitBoard(u64);
 
 impl BitBoard
@@ -40,6 +42,10 @@ impl BitBoard
     pub fn empty() -> BitBoard
     {
         BitBoard(0)
+    }
+    pub fn is_empty(&self) -> bool
+    {
+        self.0 == 0
     }
     pub fn get_value_at( &self, coord: Coord ) -> bool
     {
@@ -119,6 +125,33 @@ impl fmt::Display for BitBoard
             }
         }
         write!(f,"")
+    }
+}
+
+
+#[derive(Debug)]
+pub struct BoardIterator(BitBoard);
+
+impl Iterator for BoardIterator {
+    type Item = Coord;
+
+    fn next(&mut self) -> Option<Coord>
+    {
+        if self.0.is_empty() {
+            return None;
+        }
+        let pos = self.0.first_one();
+        self.0.set_value_at(pos, false);
+        Some(pos)
+    }
+}
+
+impl IntoIterator for BitBoard {
+    type Item = Coord;
+    type IntoIter = BoardIterator;
+
+    fn into_iter(self) -> Self::IntoIter {
+        BoardIterator(self)
     }
 }
 
