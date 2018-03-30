@@ -98,9 +98,16 @@ impl BitBoard
         BitBoard( 0b0000000100000001000000010000000100000001000000010000000100000001u64 )
     }
     
-    pub fn first_one(&self) -> Coord
+    pub fn first_one(&self) -> Option<Coord>
     {
-        Coord( self.0.trailing_zeros() )
+        if self.is_empty()
+        {
+            None
+        }
+        else 
+        {
+            Some(Coord( self.0.trailing_zeros() ))
+        }
     }
 
 }
@@ -137,10 +144,7 @@ impl Iterator for BoardIterator {
 
     fn next(&mut self) -> Option<Coord>
     {
-        if self.0.is_empty() {
-            return None;
-        }
-        let pos = self.0.first_one();
+        let pos = self.0.first_one()?;
         self.0.set_value_at(pos, false);
         Some(pos)
     }
@@ -150,7 +154,8 @@ impl IntoIterator for BitBoard {
     type Item = Coord;
     type IntoIter = BoardIterator;
 
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self) -> Self::IntoIter 
+    {
         BoardIterator(self)
     }
 }

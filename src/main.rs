@@ -18,7 +18,7 @@ fn main() {
     println!("Test pattern: {}", test_board);
     println!("Shift right: {}", test_board.shift_right());
     println!("Shift up: {}", test_board.shift_up());
-    println!("first one at: {}",test_board.shift_up().first_one());
+    println!("first one at: {}",test_board.shift_up().first_one().expect("There should be a one on board"));
     println!("Shift left: {}", test_board.shift_left());
     println!("Shift down: {}", test_board.shift_down());
     for coord in test_board
