@@ -1,5 +1,6 @@
 
 use std::fmt;
+use std::ops::BitOr;
 
 #[derive(Clone,Copy)]
 pub struct Coord(u32);
@@ -34,7 +35,7 @@ impl fmt::Display for Coord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct BitBoard(u64);
 
 impl BitBoard
@@ -112,6 +113,20 @@ impl BitBoard
 
 }
 
+impl PartialEq for BitBoard {
+    fn eq(&self, other: &BitBoard) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl BitOr for BitBoard {
+    type Output = BitBoard;
+
+    fn bitor(self, other: BitBoard) -> BitBoard {
+        BitBoard( self.0 | other.0 )
+    }
+}
+
 impl fmt::Display for BitBoard
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -160,3 +175,60 @@ impl IntoIterator for BitBoard {
     }
 }
 
+//Tests
+//-----------------------------------------------------------------------------
+#[cfg(test)]
+mod test
+{
+    use super::*;
+
+    fn test_pattern( ) -> BitBoard
+    {
+        let mut board = BitBoard::empty();
+        board.set_value_at( Coord::new(0, 0), true );
+        board.set_value_at( Coord::new(0, 7), true );
+        board.set_value_at( Coord::new(7, 0), true );
+        board.set_value_at( Coord::new(7, 7), true );
+        board.set_value_at( Coord::new(2, 2), true );
+        board
+    }
+
+    #[test]
+    fn test_board_creation()
+    {
+        //When bord is printed, rows are 'reversed' because msb is to the right
+        //So the coordinate system is reverse to what you would expect
+        assert_eq!(test_pattern(), BitBoard(0b10000001_00000000_00000000_00000000_00000000_00000100_00000000_10000001u64))
+    }
+
+    #[test]
+    fn test_print_board()
+    {
+        let out = format!("{}", test_pattern());
+        assert_eq!(out, "\n10000001\n00000000\n00100000\n00000000\n00000000\n00000000\n00000000\n10000001");
+    } 
+    #[test]
+    fn test_shift_right()
+    {
+        let out = format!("{}", test_pattern().shift_right());
+        assert_eq!(out, "\n01000000\n00000000\n00010000\n00000000\n00000000\n00000000\n00000000\n01000000");
+    } 
+    #[test]
+    fn test_shift_up()
+    {
+        let out = format!("{}", test_pattern().shift_up());
+        assert_eq!(out, "\n00000000\n00100000\n00000000\n00000000\n00000000\n00000000\n10000001\n00000000");
+    } 
+    #[test]
+    fn test_shift_left()
+    {
+        let out = format!("{}", test_pattern().shift_left());
+        assert_eq!(out, "\n00000010\n00000000\n01000000\n00000000\n00000000\n00000000\n00000000\n00000010");
+    } 
+    #[test]
+    fn test_shift_down()
+    {
+        let out = format!("{}", test_pattern().shift_down());
+        assert_eq!(out, "\n00000000\n10000001\n00000000\n00100000\n00000000\n00000000\n00000000\n00000000");
+    } 
+}
