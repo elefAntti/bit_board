@@ -1,6 +1,7 @@
 extern crate bit_board;
 use std::fmt;
 use bit_board::Coord;
+use bit_board::Direction;
 use bit_board::BitBoard;
 
 
@@ -14,7 +15,36 @@ struct OthelloSituation
 {
     black_board: BitBoard,
     white_board: BitBoard,
+    moves: BitBoard,
     turn: Player
+}
+
+fn generate_moves_towards( own_board: BitBoard, other_board: BitBoard, direction: Direction ) -> BitBoard
+{
+    let empty_spaces = !own_board & !other_board;
+    let mut moves = BitBoard::empty();
+    let mut move_tmp = own_board.shift( direction ) & other_board;
+    while !(move_tmp.is_empty())
+    {
+        move_tmp = move_tmp.shift( direction );
+        let moves_generated_this_round = move_tmp & empty_spaces;
+        move_tmp &= other_board;
+        moves |= moves_generated_this_round;
+    }
+    moves
+}
+
+fn generate_moves( own_board: BitBoard, other_board: BitBoard ) -> BitBoard
+{
+    generate_moves_towards( own_board, other_board, Direction::Right ) |
+    generate_moves_towards( own_board, other_board, Direction::UpRight ) |
+    generate_moves_towards( own_board, other_board, Direction::Up ) |
+    generate_moves_towards( own_board, other_board, Direction::UpLeft ) |
+    generate_moves_towards( own_board, other_board, Direction::Left ) |
+    generate_moves_towards( own_board, other_board, Direction::DownLeft ) |
+    generate_moves_towards( own_board, other_board, Direction::Down ) |
+    generate_moves_towards( own_board, other_board, Direction::DownRight )
+
 }
 
 impl OthelloSituation
@@ -27,7 +57,8 @@ impl OthelloSituation
         let mut white_board = BitBoard::empty();
         white_board.set_value_at(Coord::new(3,3),true);
         white_board.set_value_at(Coord::new(4,4),true);
-        OthelloSituation{ black_board, white_board, turn: Player::Black }
+        let moves = generate_moves( black_board, white_board );
+        OthelloSituation{ black_board, white_board, moves, turn: Player::Black }
     }
 }
 
@@ -48,6 +79,10 @@ impl fmt::Display for OthelloSituation
                 else if self.white_board.get_value_at(Coord::new(row, col))
                 {
                     write!(f, "○")?;                    
+                }
+                else if self.moves.get_value_at(Coord::new(row, col))
+                {
+                    write!(f, ",")?;                    
                 }
                 else 
                 {

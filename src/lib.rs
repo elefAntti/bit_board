@@ -1,6 +1,6 @@
 
 use std::fmt;
-use std::ops::BitOr;
+use std::ops::{BitOr, BitAnd, BitOrAssign, BitAndAssign, Not};
 
 #[derive(Clone,Copy)]
 pub struct Coord(u32);
@@ -35,6 +35,19 @@ impl fmt::Display for Coord {
     }
 }
 
+#[derive(Clone,Copy)]
+pub enum Direction
+{
+    Right,
+    UpRight,
+    Up,
+    UpLeft,
+    Left,
+    DownLeft,
+    Down,
+    DownRight
+}
+
 #[derive(Debug, Copy, Clone)]
 pub struct BitBoard(u64);
 
@@ -44,6 +57,17 @@ impl BitBoard
     {
         BitBoard(0)
     }
+
+    pub fn rightmost_column() -> BitBoard
+    {
+        BitBoard( 0b1000000010000000100000001000000010000000100000001000000010000000u64 )
+    }
+
+    pub fn leftmost_column() -> BitBoard
+    {
+        BitBoard( 0b0000000100000001000000010000000100000001000000010000000100000001u64 )
+    }
+    
     pub fn is_empty(&self) -> bool
     {
         self.0 == 0
@@ -88,17 +112,21 @@ impl BitBoard
         BitBoard( ( self.0 & !mask ) << 1 )
     }
 
-
-    pub fn rightmost_column() -> BitBoard
+    pub fn shift( &self, direction: Direction ) -> BitBoard
     {
-        BitBoard( 0b1000000010000000100000001000000010000000100000001000000010000000u64 )
+        match direction
+        {
+            Direction::Right => self.shift_right(),
+            Direction::UpRight => self.shift_right().shift_up(),
+            Direction::Up => self.shift_up(),
+            Direction::UpLeft => self.shift_left().shift_up(),
+            Direction::Left => self.shift_left(),
+            Direction::DownLeft => self.shift_left().shift_down(),
+            Direction::Down => self.shift_down(),
+            Direction::DownRight => self.shift_right().shift_down()
+        }
     }
 
-    pub fn leftmost_column() -> BitBoard
-    {
-        BitBoard( 0b0000000100000001000000010000000100000001000000010000000100000001u64 )
-    }
-    
     pub fn first_one(&self) -> Option<Coord>
     {
         if self.is_empty()
@@ -113,17 +141,56 @@ impl BitBoard
 
 }
 
-impl PartialEq for BitBoard {
-    fn eq(&self, other: &BitBoard) -> bool {
+impl PartialEq for BitBoard
+{
+    fn eq(&self, other: &BitBoard) -> bool
+    {
         self.0 == other.0
     }
 }
 
-impl BitOr for BitBoard {
+impl BitOr for BitBoard
+{
     type Output = BitBoard;
 
-    fn bitor(self, other: BitBoard) -> BitBoard {
+    fn bitor(self, other: BitBoard) -> BitBoard
+    {
         BitBoard( self.0 | other.0 )
+    }
+}
+
+impl BitAnd for BitBoard
+{
+    type Output = BitBoard;
+
+    fn bitand(self, other: BitBoard) -> BitBoard
+    {
+        BitBoard( self.0 & other.0 )
+    }
+}
+
+impl BitAndAssign for BitBoard
+{
+    fn bitand_assign(&mut self, other: Self)
+    {
+        *self = BitBoard( self.0 & other.0 )
+    }
+}
+
+impl BitOrAssign for BitBoard
+{
+    fn bitor_assign(&mut self, other: Self)
+    {
+        *self = BitBoard( self.0 | other.0 )
+    }
+}
+
+impl Not for BitBoard 
+{
+    type Output = BitBoard;
+    fn not(self) -> BitBoard 
+    {
+        BitBoard(!self.0)
     }
 }
 
