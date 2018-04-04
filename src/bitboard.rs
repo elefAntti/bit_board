@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::{BitOr, BitAnd, BitOrAssign, BitAndAssign, Not};
+use std::ops::{BitOr, BitAnd, BitXor, BitOrAssign, BitAndAssign, BitXorAssign, Not};
 
 #[derive(Clone,Copy)]
 pub struct Coord(u32);
@@ -89,6 +89,12 @@ impl BitBoard
         }
     }
 
+    pub fn with_one_at( &self, coord: Coord ) -> BitBoard
+    {
+        let idx = coord.get_idx();
+        BitBoard(self.0 | 1 << idx)
+    }
+
     pub fn shift_up( &self ) -> BitBoard
     {
         BitBoard( self.0 >> 8 )
@@ -158,6 +164,16 @@ impl BitOr for BitBoard
     }
 }
 
+impl BitXor for BitBoard
+{
+    type Output = BitBoard;
+
+    fn bitxor(self, other: BitBoard) -> BitBoard
+    {
+        BitBoard( self.0 ^ other.0 )
+    }
+}
+
 impl BitAnd for BitBoard
 {
     type Output = BitBoard;
@@ -181,6 +197,14 @@ impl BitOrAssign for BitBoard
     fn bitor_assign(&mut self, other: Self)
     {
         *self = BitBoard( self.0 | other.0 )
+    }
+}
+
+impl BitXorAssign for BitBoard
+{
+    fn bitxor_assign(&mut self, other: Self)
+    {
+        *self = BitBoard( self.0 ^ other.0 )
     }
 }
 

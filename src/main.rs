@@ -1,6 +1,6 @@
 extern crate bit_board;
 use std::fmt;
-//use bit_board::bitboard::{Coord, Direction, BitBoard};
+use bit_board::bitboard::{Coord, Direction, BitBoard};
 use bit_board::Othello::OthelloSituation;
 
 
@@ -31,5 +31,6 @@ fn main() {
         println!("{}", coord );
     }*/
     println!("Board: {}", OthelloSituation::new());
+    println!("Board: {}", OthelloSituation::new().apply_move(Coord::new(2,3)).unwrap());
     
 }
