@@ -5,7 +5,7 @@ pub mod Othello
     use std::fmt;
     use super::bitboard::{Coord, Direction, BitBoard};
 
-    #[derive(PartialEq)]
+    #[derive(PartialEq, Debug)]
     enum Player
     {
         Black,
@@ -20,6 +20,7 @@ pub mod Othello
         }
     }
 
+    #[derive(PartialEq, Debug)]
     pub struct OthelloSituation
     {
         black_board: BitBoard,
@@ -200,6 +201,43 @@ pub mod Othello
                 write!(f, "{}",row)?;            
             }
             write!(f, "\n  abcdefgh")
+        }
+    }
+    //Tests
+    //-----------------------------------------------------------------------------
+    #[cfg(test)]
+    mod test
+    {
+        use super::*;
+        #[test]
+        fn play_on_top_white( )
+        {
+            assert_eq!( OthelloSituation::new().apply_move(Coord::new(3,3)), None );
+        }
+
+        #[test]
+        fn play_on_top_black( )
+        {
+            assert_eq!( OthelloSituation::new().apply_move(Coord::new(4,3)), None );
+        }
+
+        #[test]
+        fn play_in_corner( )
+        {
+            assert_eq!( OthelloSituation::new().apply_move(Coord::new(0,0)), None );
+        }
+
+        #[test]
+        fn play_in_illegal( )
+        {
+            assert_eq!( OthelloSituation::new().apply_move(Coord::new(5,3)), None );
+        }
+
+        #[test]
+        fn play_legal( )
+        {
+            let situation = OthelloSituation::new().apply_move(Coord::new(2,3)).expect("First move failed");
+            situation.apply_move(Coord::new(2,2)).expect("Second move failed");
         }
     }
 
