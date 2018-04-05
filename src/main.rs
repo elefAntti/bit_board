@@ -17,6 +17,18 @@ use bit_board::Othello::OthelloSituation;
     board
 }*/
 
+fn play_a_bit() -> Option<OthelloSituation>
+{
+    let mut situation = OthelloSituation::new();
+    for i in 1..10
+    {
+        let coord = situation.get_moves().next()?;
+        println!("Situation {} playing {}", situation, coord);
+        situation = situation.apply_move(coord)?;
+    }
+    Some(situation)
+}
+
 fn main() {
     /*let test_board = test_pattern();
     println!("Test pattern: {}", test_board);
@@ -32,5 +44,5 @@ fn main() {
     }*/
     println!("Board: {}", OthelloSituation::new());
     println!("Board: {}", OthelloSituation::new().apply_move(Coord::new(2,3)).unwrap());
-    
+    play_a_bit();    
 }

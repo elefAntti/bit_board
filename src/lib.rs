@@ -3,7 +3,7 @@ pub mod bitboard;
 pub mod Othello
 {
     use std::fmt;
-    use super::bitboard::{Coord, Direction, BitBoard};
+    use super::bitboard::{Coord, Direction, BitBoard, BoardIterator};
 
     #[derive(PartialEq, Debug)]
     enum Player
@@ -169,6 +169,11 @@ pub mod Othello
 
             Some( new_situation )
         }
+
+        pub fn get_moves(&self) -> BoardIterator
+        {
+            self.moves.into_iter()
+        } 
     }
 
     impl fmt::Display for OthelloSituation
