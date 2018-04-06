@@ -2,7 +2,7 @@ use std::fmt;
 use super::game;
 use super::bitboard::{Coord, Direction, BitBoard, BoardIterator};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub enum Player
 {
     Black,
@@ -146,6 +146,7 @@ impl game::GameSituation for OthelloSituation
 {
     type Move = Coord;
     type MoveIterator = BoardIterator;
+    type Role = Player;
 
     fn copy_apply( &self, move_coord: Coord ) -> Option<OthelloSituation>
     {
@@ -183,6 +184,40 @@ impl game::GameSituation for OthelloSituation
     {
         self.moves.into_iter()
     } 
+
+    fn get_turn(&self) -> Player
+    {
+        self.turn.clone()
+    }
+
+    fn is_finished(&self) -> bool
+    {
+        self.moves.is_empty()
+    }
+
+    fn get_winner(&self) -> Option<Player>
+    {
+        if !self.is_finished()
+        {
+            return None;
+        }
+
+        let whites = self.white_board.count_ones();
+        let blacks = self.black_board.count_ones();
+
+        if whites > blacks
+        {
+            Some(Player::White)
+        } 
+        else if blacks > whites
+        {
+            Some(Player::Black)
+        }
+        else
+        {
+            None
+        }
+    }
 }
 
 impl fmt::Display for OthelloSituation
