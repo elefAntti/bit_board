@@ -1,4 +1,5 @@
 extern crate bit_board;
+use bit_board::game::{GameSituation};
 use bit_board::bitboard::Coord;
 use bit_board::othello::OthelloSituation;
 
@@ -23,7 +24,7 @@ fn play_a_bit() -> Option<OthelloSituation>
     {
         let coord = situation.get_moves().next()?;
         println!("Situation {} playing {}", situation, coord);
-        situation = situation.apply_move(coord)?;
+        situation = situation.copy_apply(coord)?;
     }
     Some(situation)
 }
@@ -42,6 +43,6 @@ fn main() {
         println!("{}", coord );
     }*/
     println!("Board: {}", OthelloSituation::new());
-    println!("Board: {}", OthelloSituation::new().apply_move(Coord::new(2,3)).unwrap());
+    println!("Board: {}", OthelloSituation::new().copy_apply(Coord::new(2,3)).unwrap());
     play_a_bit();    
 }
