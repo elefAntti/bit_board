@@ -1,7 +1,6 @@
 extern crate bit_board;
-use std::fmt;
-use bit_board::bitboard::{Coord, Direction, BitBoard};
-use bit_board::Othello::OthelloSituation;
+use bit_board::bitboard::Coord;
+use bit_board::othello::OthelloSituation;
 
 
 
@@ -20,7 +19,7 @@ use bit_board::Othello::OthelloSituation;
 fn play_a_bit() -> Option<OthelloSituation>
 {
     let mut situation = OthelloSituation::new();
-    for i in 1..10
+    for _ in 1..10
     {
         let coord = situation.get_moves().next()?;
         println!("Situation {} playing {}", situation, coord);

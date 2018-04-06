@@ -143,6 +143,11 @@ impl BitBoard
             Some(Coord( self.0.trailing_zeros() ))
         }
     }
+    
+    pub fn count_ones(&self) -> i32
+    {
+        self.0.count_ones() as i32
+    }
 
 }
 

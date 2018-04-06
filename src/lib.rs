@@ -1,12 +1,13 @@
+//#![feature(test)]
 pub mod bitboard;
 
-pub mod Othello
+pub mod othello
 {
     use std::fmt;
     use super::bitboard::{Coord, Direction, BitBoard, BoardIterator};
 
     #[derive(PartialEq, Debug)]
-    enum Player
+    pub enum Player
     {
         Black,
         White
@@ -51,6 +52,7 @@ pub mod Othello
         BitBoard::empty()
     }
 
+    //Returns a bitboard containing ones for all the pieces that will be flipped by a move
     fn delta_for_move( own_board: BitBoard, other_board: BitBoard, move_board: BitBoard ) -> BitBoard
     {
         let empty_spaces = !own_board & !other_board;
@@ -174,6 +176,11 @@ pub mod Othello
         {
             self.moves.into_iter()
         } 
+
+        pub fn get_score(&self, player: Player) -> i32
+        {
+            (self.white_board.count_ones() - self.black_board.count_ones()) * if player == Player::Black {-1} else {1}
+        }
     }
 
     impl fmt::Display for OthelloSituation
@@ -244,6 +251,12 @@ pub mod Othello
             let situation = OthelloSituation::new().apply_move(Coord::new(2,3)).expect("First move failed");
             situation.apply_move(Coord::new(2,2)).expect("Second move failed");
         }
+
+       /* #[bench]
+        fn bench_generate_moves(b: &mut Bencher) {
+            let situation = OthelloSituation::new();
+            b.iter(|| generate_moves( situation.get_own_board(), situation.get_opponent_board() ));
+        }*/
     }
 
 }
