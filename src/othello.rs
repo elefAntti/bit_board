@@ -11,9 +11,21 @@ pub enum Player
 
 impl Player
 {
-    fn opposite( &self ) -> Player
+    pub fn opposite( &self ) -> Player
     {
         if self == &Player::Black { Player::White } else { Player::Black }
+    }
+}
+
+impl fmt::Display for Player
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result 
+    {  
+        match self 
+        {
+            &Player::Black => write!(f, "Black"),
+            &Player::White => write!(f, "White")
+        }
     }
 }
 
@@ -223,10 +235,11 @@ impl game::GameSituation for OthelloSituation
 impl fmt::Display for OthelloSituation
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Turn: {}", self.turn)?;
         write!(f, "\n  abcdefgh")?;        
         for row in 0..8
         {
-            write!(f, "\n {}",row)?;
+            write!(f, "\n {}",row + 1)?;
             for col in 0..8
             {
 
@@ -247,7 +260,7 @@ impl fmt::Display for OthelloSituation
                     write!(f, ".")?;                    
                 }
             }
-            write!(f, "{}",row)?;            
+            write!(f, "{}",row + 1)?;            
         }
         write!(f, "\n  abcdefgh")
     }

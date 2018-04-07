@@ -1,21 +1,12 @@
 extern crate bit_board;
+use bit_board::game;
 use bit_board::game::{GameSituation};
-use bit_board::bitboard::Coord;
+//use bit_board::bitboard::Coord;
+use bit_board::othello;
 use bit_board::othello::OthelloSituation;
+use bit_board::{HumanOthelloPlayer, DummyOthelloPlayer};
 
 
-
-
-/*fn test_pattern( ) -> BitBoard
-{
-    let mut board = BitBoard::empty();
-    board.set_value_at( Coord::new(0, 0), true );
-    board.set_value_at( Coord::new(0, 7), true );
-    board.set_value_at( Coord::new(7, 0), true );
-    board.set_value_at( Coord::new(7, 7), true );
-    board.set_value_at( Coord::new(2, 2), true );
-    board
-}*/
 
 fn play_a_bit() -> Option<OthelloSituation>
 {
@@ -29,20 +20,61 @@ fn play_a_bit() -> Option<OthelloSituation>
     Some(situation)
 }
 
-fn main() {
-    /*let test_board = test_pattern();
-    println!("Test pattern: {}", test_board);
-    println!("Shift right: {}", test_board.shift_right());
-    println!("Shift up: {}", test_board.shift_up());
-    println!("first one at: {}",test_board.shift_up().first_one().expect("There should be a one on board"));
-    println!("Shift left: {}", test_board.shift_left());
-    println!("Shift down: {}", test_board.shift_down());
-    println!("Original or shift down: {}", test_board.shift_down() | test_board );
-    for coord in test_board
+type OthelloMove = <OthelloSituation as GameSituation>::Move;  
+type OthelloPlayer = game::Player< Situation = OthelloSituation, Move = OthelloMove >;
+
+
+struct OthelloGame
+{
+    black_player: Box<OthelloPlayer>,
+    white_player: Box<OthelloPlayer>,
+    situation: OthelloSituation
+}
+
+impl OthelloGame
+{
+    fn new( black_player: Box<OthelloPlayer>, white_player: Box<OthelloPlayer> ) -> OthelloGame
     {
-        println!("{}", coord );
-    }*/
-    println!("Board: {}", OthelloSituation::new());
-    println!("Board: {}", OthelloSituation::new().copy_apply(Coord::new(2,3)).unwrap());
-    play_a_bit();    
+        OthelloGame{ black_player, white_player, situation: OthelloSituation::new() }
+    }
+
+    fn play(&mut self) -> Option<othello::Player> 
+    {
+        let previous_move: Option<OthelloMove> = None;
+        while !self.situation.is_finished() 
+        {
+            let ref mut player_to_move = match self.situation.get_turn()
+            {
+                othello::Player::Black => &mut self.black_player,
+                othello::Player::White => &mut self.white_player
+            };
+            let new_move = player_to_move.make_move( &self.situation, previous_move );
+            if let Some(new_move) = new_move 
+            {
+                if let Some(new_situation) = self.situation.copy_apply(new_move) 
+                {
+                    self.situation = new_situation;
+                }
+                else 
+                {
+                    println!("Player {} returned an illegal move {}", self.situation.get_turn(), new_move );
+                    return Some(self.situation.get_turn().opposite());
+                }
+            }
+            else 
+            {
+                println!("Player {} returned a pass (giving up)", self.situation.get_turn() );
+                return Some(self.situation.get_turn().opposite());
+            }
+        }
+        self.situation.get_winner()
+    }
+}
+
+
+fn main() 
+{
+    //play_a_bit();    
+    let mut game = OthelloGame::new( Box::new( HumanOthelloPlayer::new() ), Box::new( DummyOthelloPlayer::new() ) );
+    game.play();
 }

@@ -48,22 +48,32 @@ fn read_coord() -> Option<bitboard::Coord>
         }
 
 		let chars:Vec<char> = input.trim().chars().collect();
-
-		let col = "abcdefgh".find(chars[0]);
-		let row = chars[1].to_digit(10).unwrap_or(0) - 1;
-
-        if let Some(col) = col 
+        if chars.len() == 2
         {
-            if row >= 0 && row < 8
+            let col = "abcdefgh".find(chars[0]);
+            let row = chars[1].to_digit(10).unwrap_or(0) as u32;
+
+            if let Some(col) = col 
             {
-                input_coord = Some(bitboard::Coord::new( row, col as u32 ));
-            } 
+                if row > 0 && row <= 8
+                {
+                    input_coord = Some(bitboard::Coord::new( row - 1, col as u32 ));
+                } 
+            }
         }
 	}
 	input_coord
 }
 
-struct HumanOthelloPlayer{}
+pub struct HumanOthelloPlayer{}
+
+impl HumanOthelloPlayer
+{
+    pub fn new() -> HumanOthelloPlayer
+    {
+        HumanOthelloPlayer{}
+    }
+}
 
 impl game::Player for HumanOthelloPlayer
 {
@@ -79,5 +89,28 @@ impl game::Player for HumanOthelloPlayer
             my_move = read_coord()?;
         }
         Some(my_move)
+    }
+
+}
+
+
+//This othello player always plays the first legal move
+pub struct DummyOthelloPlayer{}
+
+impl DummyOthelloPlayer
+{
+    pub fn new() -> DummyOthelloPlayer
+    {
+        DummyOthelloPlayer{}
+    }
+}
+
+impl game::Player for DummyOthelloPlayer
+{
+    type Move = <OthelloSituation as GameSituation>::Move;
+    type Situation = OthelloSituation;
+    fn make_move( &mut self, situation: &Self::Situation, previous_move: Option<Self::Move> ) -> Option<Self::Move>
+    {
+        situation.get_moves().next()
     }
 }
