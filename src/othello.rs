@@ -33,17 +33,17 @@ pub struct OthelloSituation
 // Return value is a bitboard containing the pieces to be flipped
 fn apply_move_towards( own_board: BitBoard, other_board: BitBoard, move_board: BitBoard, direction: Direction ) -> BitBoard
 {
-    let mut move_tmp = move_board.shift( direction ) & other_board;
-    let mut delta = move_tmp;
-    while !(move_tmp.is_empty())
+    let mut current_square = move_board.shift( direction ) & other_board;
+    let mut delta = current_square;
+    while !(current_square.is_empty())
     {
-        move_tmp = move_tmp.shift( direction );
-        if !((move_tmp & own_board).is_empty())
+        current_square = current_square.shift( direction );
+        if !((current_square & own_board).is_empty())
         {
             return delta;
         }
-        delta |= move_tmp;
-        move_tmp &= other_board;                        
+        delta |= current_square;
+        current_square &= other_board;                        
     }
     BitBoard::empty()
 }
@@ -70,12 +70,12 @@ fn generate_moves_towards( own_board: BitBoard, other_board: BitBoard, direction
 {
     let empty_spaces = !own_board & !other_board;
     let mut moves = BitBoard::empty();
-    let mut move_tmp = own_board.shift( direction ) & other_board;
-    while !(move_tmp.is_empty())
+    let mut current_square = own_board.shift( direction ) & other_board;
+    while !(current_square.is_empty())
     {
-        move_tmp = move_tmp.shift( direction );
-        let moves_generated_this_round = move_tmp & empty_spaces;
-        move_tmp &= other_board;
+        current_square = current_square.shift( direction );
+        let moves_generated_this_round = current_square & empty_spaces;
+        current_square &= other_board;
         moves |= moves_generated_this_round;
     }
     moves
