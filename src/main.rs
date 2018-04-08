@@ -6,9 +6,7 @@ use bit_board::othello;
 use bit_board::othello::OthelloSituation;
 use bit_board::{HumanOthelloPlayer, DummyOthelloPlayer};
 
-
-
-fn play_a_bit() -> Option<OthelloSituation>
+/*fn play_a_bit() -> Option<OthelloSituation>
 {
     let mut situation = OthelloSituation::new();
     for _ in 1..10
@@ -18,7 +16,7 @@ fn play_a_bit() -> Option<OthelloSituation>
         situation = situation.copy_apply(coord)?;
     }
     Some(situation)
-}
+}*/
 
 type OthelloMove = <OthelloSituation as GameSituation>::Move;  
 type OthelloPlayer = game::Player< Situation = OthelloSituation, Move = OthelloMove >;
