@@ -55,3 +55,33 @@ impl OthelloGame
         self.situation.get_winner()
     }
 }
+
+//Tests
+//-----------------------------------------------------------------------------
+#[cfg(test)]
+mod test
+{
+    use super::*;
+
+    #[test]
+    fn two_random_players()
+    {
+        let mut game = OthelloGame::new( Box::new(othello::players::DummyOthelloPlayer::new()), Box::new(othello::players::DummyOthelloPlayer::new()) );
+        game.play();
+    }
+
+    #[test]
+    fn minmax_beats_dummy()
+    {
+        let mut game = OthelloGame::new( Box::new(othello::players::DummyOthelloPlayer::new()), Box::new(othello::players::OthelloMinMaxPlayer::new(3)) );
+        assert_eq!(game.play(), Some(othello::Player::White));
+    }
+
+
+    #[test]
+    fn minmax_beats_dummy2()
+    {
+        let mut game = OthelloGame::new( Box::new(othello::players::OthelloMinMaxPlayer::new(3)),Box::new(othello::players::DummyOthelloPlayer::new()) );
+        assert_eq!(game.play(), Some(othello::Player::Black));
+    }
+}

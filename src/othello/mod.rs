@@ -273,6 +273,8 @@ impl fmt::Display for OthelloSituation
 mod test
 {
     use super::*;
+    use super::super::game::GameSituation;
+    
     #[test]
     fn play_on_top_white( )
     {
