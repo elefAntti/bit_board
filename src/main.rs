@@ -73,6 +73,10 @@ impl OthelloGame
 fn main() 
 {
     //play_a_bit();    
-    let mut game = OthelloGame::new( Box::new( HumanOthelloPlayer::new() ), Box::new( OthelloMinMaxPlayer::new() ) );
-    game.play();
+    let mut game = OthelloGame::new( Box::new( HumanOthelloPlayer::new() ), Box::new( OthelloMinMaxPlayer::new(7) ) );
+    match game.play()
+    {
+        None => println!("It's a tie"),
+        Some(winner) => println!("{} won" ,winner)
+    }
 }

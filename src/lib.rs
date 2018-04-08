@@ -197,13 +197,14 @@ impl ai::MinMaxTraits for OthelloMinMaxTraits
 pub struct OthelloMinMaxPlayer
 {
     algorithm: ai::MinMax< OthelloMinMaxTraits >,
+    max_depth: u32
 }
 
 impl OthelloMinMaxPlayer
 {
-    pub fn new() -> OthelloMinMaxPlayer
+    pub fn new( max_depth: u32 ) -> OthelloMinMaxPlayer
     {
-        OthelloMinMaxPlayer{ algorithm: ai::MinMax::new() }
+        OthelloMinMaxPlayer{ algorithm: ai::MinMax::new(), max_depth }
     }
 }
 
@@ -213,6 +214,6 @@ impl game::Player for OthelloMinMaxPlayer
     type Situation = OthelloSituation;
     fn make_move( &mut self, situation: &Self::Situation, _previous_move: Option<Self::Move> ) -> Option<Self::Move>
     {
-        self.algorithm.search_root( situation, 3 ).0
+        self.algorithm.search_root( situation, self.max_depth ).0
     }
 }
