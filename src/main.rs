@@ -4,7 +4,7 @@ use bit_board::game::{GameSituation};
 //use bit_board::bitboard::Coord;
 use bit_board::othello;
 use bit_board::othello::OthelloSituation;
-use bit_board::{HumanOthelloPlayer, DummyOthelloPlayer};
+use bit_board::{HumanOthelloPlayer, DummyOthelloPlayer, OthelloMinMaxPlayer};
 
 /*fn play_a_bit() -> Option<OthelloSituation>
 {
@@ -73,6 +73,6 @@ impl OthelloGame
 fn main() 
 {
     //play_a_bit();    
-    let mut game = OthelloGame::new( Box::new( HumanOthelloPlayer::new() ), Box::new( DummyOthelloPlayer::new() ) );
+    let mut game = OthelloGame::new( Box::new( HumanOthelloPlayer::new() ), Box::new( OthelloMinMaxPlayer::new() ) );
     game.play();
 }
