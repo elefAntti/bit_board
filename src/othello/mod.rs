@@ -1,3 +1,5 @@
+pub mod players;
+
 use std::fmt;
 use super::game;
 use super::bitboard::{Coord, Direction, BitBoard, BoardIterator};
