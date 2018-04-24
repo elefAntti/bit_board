@@ -19,20 +19,7 @@ fn read_coord() -> Option<bitboard::Coord>
             return None;
         }
 
-		let chars:Vec<char> = input.trim().chars().collect();
-        if chars.len() == 2
-        {
-            let col = "abcdefgh".find(chars[0]);
-            let row = chars[1].to_digit(10).unwrap_or(0) as u32;
-
-            if let Some(col) = col 
-            {
-                if row > 0 && row <= 8
-                {
-                    input_coord = Some(bitboard::Coord::new( row - 1, col as u32 ));
-                } 
-            }
-        }
+        input_coord = bitboard::Coord::from_str(&input); 
 	}
 	input_coord
 }
@@ -141,5 +128,20 @@ impl game::Player for OthelloMinMaxPlayer
     fn make_move( &mut self, situation: &Self::Situation, _previous_move: Option<Self::Move> ) -> Option<Self::Move>
     {
         self.algorithm.search_root( situation, self.max_depth ).0
+    }
+}
+
+#[cfg(test)]
+mod tests
+{
+    use test::Bencher;
+    use game::Player;
+    use super::*;
+
+    #[bench]
+    fn bench_min_max_player_d3(b: &mut Bencher) {
+        let situation = OthelloSituation::new();
+        let mut player = OthelloMinMaxPlayer::new( 3 );
+        b.iter(|| player.make_move(&situation, None));
     }
 }

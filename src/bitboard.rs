@@ -1,18 +1,23 @@
 use std::fmt;
+use std::str::FromStr;
 use std::ops::{BitOr, BitAnd, BitXor, BitOrAssign, BitAndAssign, BitXorAssign, Not};
 
-#[derive(Clone,Copy)]
+#[derive(Clone,Copy, Debug, PartialEq)]
 pub struct Coord(u32);
 
 impl Coord
 {
-    pub fn new( row: u32, col: u32 ) -> Coord
+    pub fn new( row: u32, col: u32 ) -> Option<Coord>
     {
         if col > 7 || row > 7
         {
-            panic!("Overindexing the board row {}, col {}", row, col);
+            None
+            //panic!("Overindexing the board row {}, col {}", row, col);
         }
-        Coord( col + row * 8 )
+        else
+        {
+            Some(Coord( col + row * 8 ))
+        }
     }
     pub fn get_row( &self ) -> u32
     {
@@ -26,12 +31,33 @@ impl Coord
     {
         self.0
     }
+    pub fn from_str(s: &str) -> Option<Self>
+    {
+       	let chars:Vec<char> = s.trim().chars().collect();
+        if chars.len() == 2
+        {
+            let col = "abcdefgh".find(chars[0])?;
+            let row = chars[1].to_digit(10).unwrap_or(0) as u32;
+            let row = row.checked_sub(1)?;
+            return Coord::new( row, col as u32 );
+        }
+        None
+    }
 }
 
 impl fmt::Display for Coord {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({}, {})", self.get_row(), self.get_col())
     }
+}
+
+impl FromStr for Coord  {
+   type Err = ();
+   fn from_str(s: &str) -> Result<Self,Self::Err>
+   {
+       	let coord: Option<Coord> = Self::from_str(s);
+        coord.ok_or(())
+   }
 }
 
 #[derive(Clone,Copy)]
@@ -231,7 +257,7 @@ impl fmt::Display for BitBoard
             for col in 0..8
             {
 
-                if self.get_value_at(Coord::new(row, col))
+                if self.get_value_at(Coord::new(row, col).unwrap())
                 {
                     write!(f, "1")?;
                 }
@@ -280,11 +306,11 @@ mod test
     fn test_pattern( ) -> BitBoard
     {
         let mut board = BitBoard::empty();
-        board.set_value_at( Coord::new(0, 0), true );
-        board.set_value_at( Coord::new(0, 7), true );
-        board.set_value_at( Coord::new(7, 0), true );
-        board.set_value_at( Coord::new(7, 7), true );
-        board.set_value_at( Coord::new(2, 2), true );
+        board.set_value_at( Coord::new(0, 0).unwrap(), true );
+        board.set_value_at( Coord::new(0, 7).unwrap(), true );
+        board.set_value_at( Coord::new(7, 0).unwrap(), true );
+        board.set_value_at( Coord::new(7, 7).unwrap(), true );
+        board.set_value_at( Coord::new(2, 2).unwrap(), true );
         board
     }
 
@@ -326,4 +352,22 @@ mod test
         let out = format!("{}", test_pattern().shift_down());
         assert_eq!(out, "\n00000000\n10000001\n00000000\n00100000\n00000000\n00000000\n00000000\n00000000");
     } 
+
+    #[test]
+    fn test_coord_from_string()
+    {
+        assert_eq!( Coord::from_str("a0"), None );
+        assert_eq!( Coord::from_str("a9"), None );
+        assert_eq!( Coord::from_str("s1"), None );
+        assert_eq!( Coord::from_str(""), None );
+        assert_eq!( Coord::from_str("a1sdfg"), None );
+
+        let coord = Coord::from_str("a1").unwrap();
+        assert_eq!( coord.get_row(), 0 );
+        assert_eq!( coord.get_col(), 0 );
+
+        let coord = Coord::from_str("b3").unwrap();
+        assert_eq!( coord.get_row(), 2 );
+        assert_eq!( coord.get_col(), 1 );
+    }
 }

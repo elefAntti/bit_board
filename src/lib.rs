@@ -1,4 +1,6 @@
-//#![feature(test)]
+#![feature(test)]
+extern crate test;
+
 pub mod bitboard;
 pub mod othello;
 pub mod game;
@@ -59,7 +61,7 @@ impl OthelloGame
 //Tests
 //-----------------------------------------------------------------------------
 #[cfg(test)]
-mod test
+mod tests
 {
     use super::*;
 

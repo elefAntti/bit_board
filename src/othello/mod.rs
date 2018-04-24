@@ -1,3 +1,4 @@
+
 pub mod players;
 
 use std::fmt;
@@ -112,11 +113,11 @@ impl OthelloSituation
     pub fn new() -> OthelloSituation
     {
         let mut black_board = BitBoard::empty();
-        black_board.set_value_at(Coord::new(3,4),true);
-        black_board.set_value_at(Coord::new(4,3),true);
+        black_board.set_value_at(Coord::new(3,4).unwrap(),true);
+        black_board.set_value_at(Coord::new(4,3).unwrap(),true);
         let mut white_board = BitBoard::empty();
-        white_board.set_value_at(Coord::new(3,3),true);
-        white_board.set_value_at(Coord::new(4,4),true);
+        white_board.set_value_at(Coord::new(3,3).unwrap(),true);
+        white_board.set_value_at(Coord::new(4,4).unwrap(),true);
         let moves = generate_moves( black_board, white_board );
         OthelloSituation{ black_board, white_board, moves, turn: Player::Black }
     }
@@ -245,15 +246,15 @@ impl fmt::Display for OthelloSituation
             for col in 0..8
             {
 
-                if self.black_board.get_value_at(Coord::new(row, col))
+                if self.black_board.get_value_at(Coord::new(row, col).unwrap())
                 {
                     write!(f, "●")?;
                 }
-                else if self.white_board.get_value_at(Coord::new(row, col))
+                else if self.white_board.get_value_at(Coord::new(row, col).unwrap())
                 {
                     write!(f, "○")?;                    
                 }
-                else if self.moves.get_value_at(Coord::new(row, col))
+                else if self.moves.get_value_at(Coord::new(row, col).unwrap())
                 {
                     write!(f, ",")?;                    
                 }
@@ -267,48 +268,52 @@ impl fmt::Display for OthelloSituation
         write!(f, "\n  abcdefgh")
     }
 }
+
 //Tests
 //-----------------------------------------------------------------------------
 #[cfg(test)]
-mod test
+mod tests
 {
+
+    use test::Bencher;
     use super::*;
     use super::super::game::GameSituation;
+
     
     #[test]
     fn play_on_top_white( )
     {
-        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(3,3)), None );
+        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(3,3).unwrap()), None );
     }
 
     #[test]
     fn play_on_top_black( )
     {
-        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(4,3)), None );
+        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(4,3).unwrap()), None );
     }
 
     #[test]
     fn play_in_corner( )
     {
-        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(0,0)), None );
+        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(0,0).unwrap()), None );
     }
 
     #[test]
     fn play_in_illegal( )
     {
-        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(5,3)), None );
+        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(5,3).unwrap()), None );
     }
 
     #[test]
     fn play_legal( )
     {
-        let situation = OthelloSituation::new().copy_apply(Coord::new(2,3)).expect("First move failed");
-        situation.copy_apply(Coord::new(2,2)).expect("Second move failed");
+        let situation = OthelloSituation::new().copy_apply(Coord::new(2,3).unwrap()).expect("First move failed");
+        situation.copy_apply(Coord::new(2,2).unwrap()).expect("Second move failed");
     }
 
-    /* #[bench]
+    #[bench]
     fn bench_generate_moves(b: &mut Bencher) {
         let situation = OthelloSituation::new();
         b.iter(|| generate_moves( situation.get_own_board(), situation.get_opponent_board() ));
-    }*/
+    }
 }
