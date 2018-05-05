@@ -136,6 +136,42 @@ impl game::Player for OthelloMinMaxPlayer
     }
 }
 
+struct OthelloAlphaBeta
+{
+}
+
+pub struct OthelloAlphaBetaPlayer
+{
+    max_depth: u32,
+    algorithm: OthelloAlphaBeta
+}
+
+impl ai::AlphaBeta for OthelloAlphaBeta
+{
+    type Move = < OthelloSituation as GameSituation >::Move; 
+    type Situation = OthelloSituation;
+    type Evaluator = SimpleOthelloEvaluator;
+}
+
+impl OthelloAlphaBetaPlayer
+{
+    pub fn new( max_depth: u32 ) -> OthelloAlphaBetaPlayer
+    {
+        OthelloAlphaBetaPlayer{ max_depth, algorithm: OthelloAlphaBeta{} }
+    }
+}
+
+impl game::Player for OthelloAlphaBetaPlayer
+{
+    type Move = <OthelloSituation as GameSituation>::Move;
+    type Situation = OthelloSituation;
+    fn make_move( &mut self, situation: &Self::Situation, _previous_move: Option<Self::Move> ) -> Option<Self::Move>
+    {
+        use ai::AlphaBeta;
+        self.algorithm.search_root( situation, self.max_depth ).0
+    }
+}
+
 #[cfg(test)]
 mod tests
 {
@@ -147,6 +183,12 @@ mod tests
     fn bench_min_max_player_d3(b: &mut Bencher) {
         let situation = OthelloSituation::new();
         let mut player = OthelloMinMaxPlayer::new( 3 );
+        b.iter(|| player.make_move(&situation, None));
+    }
+    #[bench]
+    fn bench_ab_player_d3(b: &mut Bencher) {
+        let situation = OthelloSituation::new();
+        let mut player = OthelloAlphaBetaPlayer::new( 3 );
         b.iter(|| player.make_move(&situation, None));
     }
 }

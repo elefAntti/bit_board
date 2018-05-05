@@ -279,7 +279,11 @@ impl game::GameSituation for OthelloSituation
 
     fn get_moves(&self) -> OthelloMoveIterator
     {
-        if self.moves.is_empty()
+        if self.is_finished()
+        {
+            OthelloMoveIterator::ExhaustedEmpty
+        } 
+        else if self.moves.is_empty()
         {
             OthelloMoveIterator::Empty
         }
