@@ -2,6 +2,7 @@
 pub mod players;
 
 use std::fmt;
+use std::str::FromStr;
 use super::game;
 use super::bitboard::{Coord, Direction, BitBoard, BoardIterator};
 
@@ -37,6 +38,22 @@ pub enum OthelloMove
 {
     Pass,
     Coord( Coord )
+}
+
+impl FromStr for OthelloMove  {
+   type Err = ();
+   fn from_str(s: &str) -> Result<Self,Self::Err>
+   {
+       if s == "pass"
+       {
+            Ok(OthelloMove::Pass)
+       }
+       else
+       {
+            let coord = <Coord as FromStr>::from_str(s)?;
+            Ok(OthelloMove::Coord(coord))
+       }
+   }
 }
 
 impl fmt::Display for OthelloMove
@@ -351,36 +368,45 @@ mod tests
     use super::*;
     use super::super::game::GameSituation;
 
+    #[test]
+    fn move_from_string()
+    {
+        let test_move = OthelloMove::from_str("d6").unwrap();
+        assert_eq!(test_move, OthelloMove::Coord(Coord::new(5,3).unwrap()));
+
+        let test_move = OthelloMove::from_str("pass").unwrap();
+        assert_eq!(test_move, OthelloMove::Pass);
+    }
     
     #[test]
     fn play_on_top_white( )
     {
-        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(3,3).unwrap()), None );
+        assert_eq!( OthelloSituation::new().copy_apply(OthelloMove::from_str("d4").unwrap()), None );
     }
 
     #[test]
     fn play_on_top_black( )
     {
-        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(4,3).unwrap()), None );
+        assert_eq!( OthelloSituation::new().copy_apply(OthelloMove::from_str("d5").unwrap()), None );
     }
 
     #[test]
     fn play_in_corner( )
     {
-        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(0,0).unwrap()), None );
+        assert_eq!( OthelloSituation::new().copy_apply(OthelloMove::from_str("a1").unwrap()), None );
     }
 
     #[test]
     fn play_in_illegal( )
     {
-        assert_eq!( OthelloSituation::new().copy_apply(Coord::new(5,3).unwrap()), None );
+        assert_eq!( OthelloSituation::new().copy_apply(OthelloMove::from_str("d6").unwrap()), None );
     }
 
     #[test]
     fn play_legal( )
     {
-        let situation = OthelloSituation::new().copy_apply(Coord::new(2,3).unwrap()).expect("First move failed");
-        situation.copy_apply(Coord::new(2,2).unwrap()).expect("Second move failed");
+        let situation = OthelloSituation::new().copy_apply(OthelloMove::from_str("d3").unwrap()).expect("First move failed");
+        situation.copy_apply(OthelloMove::from_str("c3").unwrap()).expect("Second move failed");
     }
 
     #[bench]
