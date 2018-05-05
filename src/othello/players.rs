@@ -1,14 +1,15 @@
 use std::io;
 use super::super::othello::OthelloSituation;
+use super::super::othello::OthelloMove;
 use super::super::game::GameSituation;
 use super::super::{ai, game, bitboard, othello};
 
-fn read_coord() -> Option<bitboard::Coord>
+fn read_move() -> Option<OthelloMove>
 {
     let mut input_coord: Option<bitboard::Coord> = None;
 	while input_coord.is_none()
 	{
-	    println!("Please enter coord (eg. a1) or 'pass'");       
+	    println!("Please enter coord (eg. a1) or 'pass' or 'quit'");       
 		let mut input = String::new();
 	    io::stdin()
 	        .read_line(&mut input)
@@ -16,12 +17,17 @@ fn read_coord() -> Option<bitboard::Coord>
 
         if input.trim() == "pass"
         {
+            return Some(OthelloMove::Pass);
+        }
+
+        if input.trim() == "quit"
+        {
             return None;
         }
 
         input_coord = bitboard::Coord::from_str(&input); 
 	}
-	input_coord
+	Some(OthelloMove::Coord(input_coord?))
 }
 
 pub struct HumanOthelloPlayer{}
@@ -41,15 +47,14 @@ impl game::Player for HumanOthelloPlayer
     fn make_move( &mut self, situation: &Self::Situation, _previous_move: Option<Self::Move> ) -> Option<Self::Move>
     {
         println!("{}", situation);
-        let mut my_move = read_coord()?;
-        while situation.copy_apply(my_move).is_none() 
+        let mut my_move = read_move()?;
+        while situation.copy_apply(my_move.clone()).is_none() 
         {
             println!("Invalid move");
-            my_move = read_coord()?;
+            my_move = read_move()?;
         }
         Some(my_move)
     }
-
 }
 
 

@@ -32,6 +32,49 @@ impl fmt::Display for Player
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum OthelloMove
+{
+    Pass,
+    Coord( Coord )
+}
+
+impl fmt::Display for OthelloMove
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result 
+    {
+        match self
+        {
+           OthelloMove::Pass => write!(f, "pass" ),
+           OthelloMove::Coord(coord) => coord.fmt(f)
+        }
+    }
+}
+
+pub enum OthelloMoveIterator
+{
+    Empty,
+    ExhaustedEmpty,
+    Moves( BoardIterator )
+}
+
+impl Iterator for OthelloMoveIterator
+{
+    type Item = OthelloMove;
+    fn next(&mut self) -> Option<OthelloMove>
+    {
+        match self
+        {
+            OthelloMoveIterator::Empty => { 
+                *self = OthelloMoveIterator::ExhaustedEmpty;
+                Some(OthelloMove::Pass) 
+                },
+            OthelloMoveIterator::ExhaustedEmpty => None,
+            OthelloMoveIterator::Moves(iter) => Some(OthelloMove::Coord(iter.next()?))
+        }
+    }
+}
+
 #[derive(PartialEq, Debug)]
 pub struct OthelloSituation
 {
@@ -159,45 +202,74 @@ impl OthelloSituation
 
 impl game::GameSituation for OthelloSituation
 {
-    type Move = Coord;
-    type MoveIterator = BoardIterator;
+    type Move = OthelloMove;
+    type MoveIterator = OthelloMoveIterator;
     type Role = Player;
 
-    fn copy_apply( &self, move_coord: Coord ) -> Option<OthelloSituation>
+    fn copy_apply( &self, move_to_play: OthelloMove ) -> Option<OthelloSituation>
     {
-        let move_as_board = BitBoard::empty().with_one_at( move_coord );
-        let own_board = self.get_own_board(); 
-        let opponent_board = self.get_opponent_board(); 
-
-        let delta = delta_for_move( own_board, opponent_board, move_as_board ); 
-
-        if delta.is_empty()
+        if let OthelloMove::Coord(move_coord) = move_to_play
         {
-            return None;
-        }
+            let move_as_board = BitBoard::empty().with_one_at( move_coord );
+            let own_board = self.get_own_board(); 
+            let opponent_board = self.get_opponent_board(); 
 
-        let mut black_board = self.black_board ^ delta;
-        let mut white_board = self.white_board ^ delta;
+            let delta = delta_for_move( own_board, opponent_board, move_as_board ); 
 
-        if self.turn == Player::Black
-        {
-            black_board |= move_as_board;
-        } 
+            if delta.is_empty()
+            {
+                return None;
+            }
+
+            let mut black_board = self.black_board ^ delta;
+            let mut white_board = self.white_board ^ delta;
+
+            if self.turn == Player::Black
+            {
+                black_board |= move_as_board;
+            } 
+            else
+            {
+                white_board |= move_as_board;
+            }
+
+            let mut new_situation = OthelloSituation{ black_board, white_board, turn: self.turn.opposite(), moves: BitBoard::empty() };
+
+            new_situation.generate_moves();
+
+            Some( new_situation )
+        }        
         else
         {
-            white_board |= move_as_board;
+            //If returning a pass and no moves available, switch side to move
+            if self.moves.is_empty()
+            {
+                let new_situation = OthelloSituation{ 
+                        black_board: self.black_board, 
+                        white_board: self.white_board, 
+                        turn: self.turn.opposite(), 
+                        moves: BitBoard::empty() 
+                    };
+                Some( new_situation )  
+            }
+            else
+            {
+                //if moves are available, passing is not allowed
+                None
+            }
         }
-
-        let mut new_situation = OthelloSituation{ black_board, white_board, turn: self.turn.opposite(), moves: BitBoard::empty() };
-
-        new_situation.generate_moves();
-
-        Some( new_situation )
     }
 
-    fn get_moves(&self) -> BoardIterator
+    fn get_moves(&self) -> OthelloMoveIterator
     {
-        self.moves.into_iter()
+        if self.moves.is_empty()
+        {
+            OthelloMoveIterator::Empty
+        }
+        else
+        {
+            OthelloMoveIterator::Moves(self.moves.into_iter())
+        }
     } 
 
     fn get_turn(&self) -> Player
@@ -207,7 +279,7 @@ impl game::GameSituation for OthelloSituation
 
     fn is_finished(&self) -> bool
     {
-        self.moves.is_empty()
+        self.moves.is_empty() && self.copy_apply( OthelloMove::Pass ).unwrap().moves.is_empty()
     }
 
     fn get_winner(&self) -> Option<Player>

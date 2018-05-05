@@ -27,7 +27,7 @@ impl OthelloGame
 
     pub fn play(&mut self) -> Option<othello::Player> 
     {
-        let previous_move: Option<OthelloMove> = None;
+        let mut previous_move: Option<OthelloMove> = None;
         while !self.situation.is_finished() 
         {
             let ref mut player_to_move = match self.situation.get_turn()
@@ -36,6 +36,7 @@ impl OthelloGame
                 othello::Player::White => &mut self.white_player
             };
             let new_move = player_to_move.make_move( &self.situation, previous_move );
+            previous_move = new_move.clone();
             if let Some(new_move) = new_move 
             {
                 if let Some(new_situation) = self.situation.copy_apply(new_move) 
@@ -44,13 +45,13 @@ impl OthelloGame
                 }
                 else 
                 {
-                    println!("Player {} returned an illegal move {}", self.situation.get_turn(), new_move );
+                    println!("Player {} returned an illegal move {}", self.situation.get_turn(), previous_move.unwrap() );
                     return Some(self.situation.get_turn().opposite());
                 }
             }
             else 
             {
-                println!("Player {} returned a pass (giving up)", self.situation.get_turn() );
+                println!("Player {} returned no move (giving up)", self.situation.get_turn() );
                 return Some(self.situation.get_turn().opposite());
             }
         }
