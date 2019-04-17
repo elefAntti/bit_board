@@ -98,12 +98,22 @@ pub trait AlphaBeta
         {
             return ( None, Self::Evaluator::evaluate_situation(&situation) );
         }
+
+        let mut best_score = -Self::Evaluator::MAX_SCORE;
+        let mut sorted_moves = situation.get_moves()
+            .map( |a_move| (a_move.clone(), -Self::search( self, 
+                                        situation.copy_apply( a_move ).unwrap(), 
+                                        2, 
+                                        best_score, 
+                                        Self::Evaluator::MAX_SCORE )))
+            .collect::<Vec<_>>();
+        sorted_moves.sort_unstable_by_key( |&(_, score)| score );
         let mut best_move:Option<Self::Move> = None;
         let mut best_score = -Self::Evaluator::MAX_SCORE;
-        for a_move in situation.get_moves()
+        for (a_move, _) in sorted_moves
         {
             let child_score = -Self::search( self, situation.copy_apply( a_move.clone() ).unwrap(), depth - 1, best_score, Self::Evaluator::MAX_SCORE  ); 
-            if  child_score >= best_score
+            if child_score >= best_score
             {
                 best_score = child_score;
                 best_move = Some( a_move );

@@ -191,4 +191,23 @@ mod tests
         let mut player = OthelloAlphaBetaPlayer::new( 3 );
         b.iter(|| player.make_move(&situation, None));
     }
+    #[bench]
+    fn bench_min_max_player_d5(b: &mut Bencher) {
+        let situation = OthelloSituation::new();
+        let mut player = OthelloMinMaxPlayer::new( 5 );
+        b.iter(|| player.make_move(&situation, None));
+    }
+
+    #[bench]
+    fn bench_min_max_player_d7(b: &mut Bencher) {
+        let situation = OthelloSituation::new();
+        let mut player = OthelloMinMaxPlayer::new( 7 );
+        b.iter(|| player.make_move(&situation, None));
+    }
+    #[bench]
+    fn bench_ab_player_d7(b: &mut Bencher) {
+        let situation = OthelloSituation::new();
+        let mut player = OthelloAlphaBetaPlayer::new( 7 );
+        b.iter(|| player.make_move(&situation, None));
+    }
 }
